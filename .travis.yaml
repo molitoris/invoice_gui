@@ -1,0 +1,19 @@
+language: python
+python:
+- '3.6'
+- '3.7'
+- '3.8'
+install:
+- pip install flake8
+- pip install setuptools==49.2.0
+script:
+- python setup.py test
+deploy:
+  provider: pypi
+  username: "__token__"
+  password:
+    secure:
+  on:
+    tags: true
+  cleanup: false
+  skip_existing: true
