@@ -1,0 +1,2 @@
+-e git+git://github.com/molitoris/invoice.git@master#egg=invoice
+-e git+git://github.com/molitoris/qr_payment_slip.git@master#egg=qr_payment_slip
