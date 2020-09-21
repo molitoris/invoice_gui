@@ -12,6 +12,7 @@ from importlib_resources import files
 
 from qr_payment_slip import QRPaymentSlip, Address as QRAddress, SVGPrinter
 from invoice import InvoiceGenerator, Address, Fee, Expense
+from qr_payment_slip.printer import PDFPrinter
 
 from invoice_gui.data_model import CostModel, PaymentInformationModel, ExtendedAddressModel, AccountModel
 from invoice_gui.errors import ValidationException
@@ -148,7 +149,7 @@ class InvoiceFrame(tk.Frame):
         output_dir = Path(destination_dir, output_name)
         output_dir.mkdir(parents=True, exist_ok=True)
 
-        total_costs = sum([fee.total_costs for fee in fees])  # + sum([expense.total_costs for expense in fee_widgets])
+        total_costs = sum([fee.total_costs for fee in fees]) + sum([expense.total_costs for expense in expenses])
 
         # Create QR payment slip
         payment_slip = QRPaymentSlip(
@@ -157,17 +158,17 @@ class InvoiceFrame(tk.Frame):
             debtor=qps_debtor,
             unstructured_message=self.payment_info_model.unstructured_message.get(),
             amount=total_costs,
-            printer=SVGPrinter()
+            printer=PDFPrinter()
         )
 
-        qps_output_file = Path(output_dir, output_name + "_qr_slip.svg")  # TODO: Change to pdf
+        qps_output_file = Path(output_dir, output_name + "_qr_slip.pdf")  # TODO: Change to pdf
         qps_thread = CustomThread(payment_slip.save_as, file_name=qps_output_file)
 
         # Create the invoice
         def create_invoice():
 
             invoice = InvoiceGenerator()
-            invoice_tex = invoice.fill_template(biller=inv_creditor, receiver=inv_debtor, fees=fees)
+            invoice_tex = invoice.fill_template(biller=inv_creditor, receiver=inv_debtor, fees=fees, expenses=expenses)
 
             inv_output_tex_file = Path(output_dir, output_name + ".tex")
 
